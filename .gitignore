@@ -1,6 +1,12 @@
+# Ide tmp files
 .vscode
 .ipynb_checkpoints
 __pycache__
 logfile.log
-tmp
+tmp*
+
+# Config with bot id and password and your testing function args
 config.json
+
+
+base_logger.log
