@@ -1,0 +1,6 @@
+.vscode
+.ipynb_checkpoints
+__pycache__
+logfile.log
+tmp
+config.json
