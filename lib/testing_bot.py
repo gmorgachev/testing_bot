@@ -134,14 +134,29 @@ class TestingBot:
                 raise KeyError
             if wait_for not in user_data["testing_functions"][test_function].args:
                 raise KeyError
+            
+            if isinstance(user_data["testing_functions"][test_function].args[wait_for], bool):
+                if update.message.text == "False":
+                    value = False
+                if update.message.text == "True":
+                    value = True
+            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], float):
+                value = float(update.message.text)
+            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], int):
+                value = int(update.message.text)
+            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], str):
+                value = update.message.text
+            else:
+                raise TypeError("DataTypeError {0}".format(update.message.text))
 
-            user_data["testing_functions"][test_function].args[wait_for] = \
-                type(user_data["testing_functions"][test_function].args[wait_for])(update.message.text)
+            user_data["testing_functions"][test_function].args[wait_for] = value
             update.message.reply_text(text="New {0} is {1}".format(
                 wait_for, user_data["testing_functions"][test_function].args[wait_for]))
 
         except KeyError:
             update.message.reply_text('Not found')
+        except TypeError as t_error:
+            update.message.reply_text(t_error)
 
     def button(self, bot, update, user_data):
 
