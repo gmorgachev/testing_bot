@@ -42,12 +42,14 @@ class TestingNNCA(TestingBase):
 
     def run(self, logger):
         assert self.args["data_project"] in ["lucene", "cassandra"], "data error"
-        if self.args["data_project"] is "cassandra":
+        if self.args["data_project"] == "cassandra":
             logger.warning("cassandra")
             data = Data(raw_data_dir=r"C:/workspace/CSharpCodeChecker/NNCA/raw_data/Cassandra/")
-        else:
+        elif self.args["data_project"] == "lucene":
             logger.warning(self.args["data_project"])
             data = Data(raw_data_dir=r"C:/workspace/CSharpCodeChecker/NNCA/raw_data/Lucene/")
+        else:
+            raise KeyError("Unknown project")
         
         model = Model(params=self.args, data=data, logger=logger)
         valid_it = model.train_model(self.args["train_size"], self.args["valid_step"], self.args["valid_size"], debug=True, log=True)
