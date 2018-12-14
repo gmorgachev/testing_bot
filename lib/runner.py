@@ -31,7 +31,8 @@ class TestingBotRunner:
     def run(testing, name, token, request_kwargs, chat_id):
         updater = Updater(token=token, request_kwargs=request_kwargs)
 
-        logger = TestingBotRunner.setup_logger("tmp_1", "C:\\workspace\\testing_bot\\tmp_1.log")
+        logger = TestingBotRunner.setup_logger(
+            "tmp_{0}".format(name), "tmp_{0}.log".format(name))
         logger.info("Init log")
         handler = TelegramBotLogHandler(updater.bot, chat_id, 10)
         handler.setFormatter(TestingBotRunner.log_formatter)
@@ -41,10 +42,8 @@ class TestingBotRunner:
             testing.run(logger=logger)
         except Exception as e:
             logger.exception(e)
-            raise
+        finally:
             updater.stop()
-
-        updater.stop()
 
     @staticmethod
     def setup_logger(name, log_file, level=logging.INFO):

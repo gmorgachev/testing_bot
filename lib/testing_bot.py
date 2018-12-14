@@ -16,15 +16,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from telegram import utils
 from multiprocessing import Process
 
-# Import test project
-# Bad way
-# TODO: to do package setup for NNCA
-
-
 from . runner import TestingBotRunner, TelegramBotLogHandler
-
-with open("./config.json", "r") as f:
-    cfg = json.load(f)
 
 
 class TestingBot:
@@ -120,20 +112,18 @@ class TestingBot:
             update.message.reply_text("Process terminated")
         except KeyError:
             self.logger.warning("Key error")
-            raise
         except:
             self.logger.error("Something strange in stop")
-            raise
         
     def text_handler(self, bot, update, user_data):
         try:
             test_function = user_data["testing_f"]
             wait_for = user_data["wait_for"]
             
-            if test_function is None or wait_for is None:
-                raise KeyError
+            if test_function is None:
+                raise KeyError("Choose project")
             if wait_for not in user_data["testing_functions"][test_function].args:
-                raise KeyError
+                raise KeyError("Choose parameter for change")
             
             if isinstance(user_data["testing_functions"][test_function].args[wait_for], bool):
                 if update.message.text == "False":
@@ -159,14 +149,14 @@ class TestingBot:
             update.message.reply_text(t_error)
 
     def button(self, bot, update, user_data):
-
         query = update.callback_query
-
+        # Choosing object for tests
         if query.data in self.testing_functions:
             user_data["testing_f"] = query.data
             bot.edit_message_text(text="Set testing function: {0}".format(query.data), 
                 chat_id=query.message.chat_id, message_id=query.message.message_id)
 
+        # Choosing parameters
         elif query.data in user_data["testing_functions"][user_data["testing_f"]].args:
             user_data["wait_for"] = query.data
             bot.edit_message_text(text="Wait for {0}".format(query.data), 

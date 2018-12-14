@@ -10,3 +10,6 @@ config.json
 
 
 base_logger.log
+tmp*
+testing_bot.ipynb
+

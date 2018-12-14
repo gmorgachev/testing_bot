@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, "../CSharpCodeChecker/")
 from NNCA.lib.model import Model
 from NNCA.lib.data_extraction import Data
-
+from time import sleep
 
 class TestingBase:
     params = {}
@@ -53,3 +53,18 @@ class TestingNNCA(TestingBase):
         
         model = Model(params=self.args, data=data, logger=logger)
         valid_it = model.train_model(self.args["train_size"], self.args["valid_step"], self.args["valid_size"], debug=True, log=True)
+
+
+
+class TestingExample(TestingBase):
+    params = {
+        "n": 3
+    }
+
+    def __init__(self):
+        return
+
+    def run(self, logger):
+        for i in range(self.params["n"]):
+            sleep(4)
+            logger.warning(i)
