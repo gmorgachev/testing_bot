@@ -48,6 +48,7 @@ class TestingBot:
             self.dispatcher.add_handler(CommandHandler('choose', self.choose_project, pass_user_data=True))
             self.dispatcher.add_handler(MessageHandler(Filters.text, self.text_handler, pass_user_data=True))
             self.dispatcher.add_handler(CallbackQueryHandler(self.button, pass_user_data=True))
+
             self.logger = TestingBotRunner.setup_logger("base_logger", "base_logger.log")
             self.logger.info("Init log")
             handler = TelegramBotLogHandler(self.updater.bot, self.my_chat_id, 10)
@@ -72,7 +73,6 @@ class TestingBot:
             user_data["testing_functions"] = {}
             for key in self.testing_functions:
                 user_data["testing_functions"][key] = self.testing_functions[key]()
-
 
         except Exception as e:
             self.logger.exception(e)
