@@ -4,6 +4,7 @@ Program for start long test via telegram
 
 ## Install
 ```bash
+git clone https://github.com/gmorgachev/testing_bot.git
 pip install python-telegram-bot --upgrade
 ```
 
