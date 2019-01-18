@@ -18,7 +18,6 @@ from multiprocessing import Process
 
 from . runner import TestingBotRunner, TelegramBotLogHandler
 
-
 class TestingBot:
     # Formatter for base_logger
     log_formatter = logging.Formatter('BASE: %(asctime)s %(levelname)s %(message)s')
@@ -35,6 +34,7 @@ class TestingBot:
 
             self.dispatcher.add_handler(CommandHandler('start', self.start, pass_user_data=True))
             self.dispatcher.add_handler(CommandHandler('run', self.run_function, pass_user_data=True))
+            self.dispatcher.add_handler(CommandHandler('remote_run', self.remote_run, pass_user_data=True))
             self.dispatcher.add_handler(CommandHandler('params', self.params_function, pass_user_data=True))
             self.dispatcher.add_handler(CommandHandler('stop', self.stop, pass_user_data=True))
             self.dispatcher.add_handler(CommandHandler('choose', self.choose_project, pass_user_data=True))
@@ -46,6 +46,13 @@ class TestingBot:
             handler = TelegramBotLogHandler(self.updater.bot, self.my_chat_id, 10)
             handler.setFormatter(TestingBot.log_formatter)
             self.logger.addHandler(handler)
+
+            self.remote_device = {
+                "user": "gleb",
+                "device_name": "localhost",
+                "work_dir": "C:\\workspace\\testing_bot",
+                "interpreter_path": "C:\\Users\\gleb\\Anaconda3\\python.exe"
+            }
 
             for name, obj in inspect.getmembers(sys.modules[lib.candidates.__name__]):
                 if inspect.isclass(obj) and issubclass(obj, lib.candidates.TestingBase):
@@ -63,22 +70,25 @@ class TestingBot:
             user_data["wait_for"] = None
             user_data["testing_f"] = None
             user_data["testing_functions"] = {}
+
             for key in self.testing_functions:
                 user_data["testing_functions"][key] = self.testing_functions[key]()
 
         except Exception as e:
             self.logger.exception(e)
 
-    def params_function(self, bot, update, user_data):
+    def params_function(self, bot, update, user_data, choosing_params_dict=None):
         try:
             test_function = user_data["testing_f"]
+            if choosing_params_dict is None:
+                choosing_params_dict = user_data["testing_functions"][test_function].args
             if test_function is None:
                 update.reply_text("test_s is none")
                 raise KeyError
             button_list = []
-            for key in user_data["testing_functions"][test_function].args:
+            for key in choosing_params_dict:
                 button_list.append(
-                    InlineKeyboardButton(key + " " + str(user_data["testing_functions"][test_function].args[key]), callback_data=key))
+                    InlineKeyboardButton(key + " " + str(choosing_params_dict[key]), callback_data=key))
             reply_markup = InlineKeyboardMarkup(self.build_menu(button_list, n_cols=2))     
             bot.send_message(chat_id=update.message.chat_id, text="Choose parameter", reply_markup=reply_markup)
         except KeyError:
@@ -106,6 +116,12 @@ class TestingBot:
         user_data["model_thread"].start()
         update.message.reply_text(text="Started")
 
+    def remote_run(self, bot, update, user_data):
+        print(user_data["testing_functions"][user_data["testing_f"]].recipient)
+        TestingBotRunner.send_remote_task(user_data["testing_functions"][user_data["testing_f"]],
+            "test", self.bot.token, self.request_kwargs, update.message.chat_id, self.remote_device)
+        update.message.reply_text(text="Started")
+
     def stop(self, bot, update, user_data):
         try:
             user_data["model_thread"].terminate()
@@ -124,17 +140,26 @@ class TestingBot:
                 raise KeyError("Choose project")
             if wait_for not in user_data["testing_functions"][test_function].args:
                 raise KeyError("Choose parameter for change")
-            
-            if isinstance(user_data["testing_functions"][test_function].args[wait_for], bool):
+            current_value = user_data["testing_functions"][test_function].args[wait_for]
+    
+            if callable(current_value):
+                try:
+                    answer = current_value(user_data["testing_functions"][test_function], update.message.text)
+                    update.message.reply_text(text=answer)
+                    return
+                except:
+                    raise TypeError("DataTypeError {0}".format(update.message.text))
+
+            elif isinstance(current_value, bool):
                 if update.message.text == "False":
                     value = False
                 if update.message.text == "True":
                     value = True
-            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], float):
+            elif isinstance(current_value, float):
                 value = float(update.message.text)
-            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], int):
+            elif isinstance(current_value, int):
                 value = int(update.message.text)
-            elif isinstance(user_data["testing_functions"][test_function].args[wait_for], str):
+            elif isinstance(current_value, str):
                 value = update.message.text
             else:
                 raise TypeError("DataTypeError {0}".format(update.message.text))
@@ -159,7 +184,8 @@ class TestingBot:
         # Choosing parameters
         elif query.data in user_data["testing_functions"][user_data["testing_f"]].args:
             user_data["wait_for"] = query.data
-            bot.edit_message_text(text="Wait for {0}".format(query.data), 
+            
+            bot.edit_message_text(text="Wait for {0}".format(query.data),
                 chat_id=query.message.chat_id, message_id=query.message.message_id)
 
     @staticmethod

@@ -7,9 +7,13 @@ tmp*
 
 # Config with bot id and password and your testing function args
 config.json
+files/*
+*params*
+*cfg*
 
+Untitled.ipynb
 
 base_logger.log
 tmp*
 testing_bot.ipynb
-
+lib/*tmp*

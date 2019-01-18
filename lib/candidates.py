@@ -1,8 +1,7 @@
 import sys
+import re
+import json
 
-sys.path.insert(0, "../CSharpCodeChecker/")
-from NNCA.lib.model import Model
-from NNCA.lib.data_extraction import Data
 from time import sleep
 
 class TestingBase:
@@ -14,46 +13,18 @@ class TestingBase:
     def run(self, logger):
         raise NotImplementedError()
 
-
-class TestingNNCA(TestingBase):
-    params = {
-        "num_edge_types": 8,
-        "batch_size": 5,
-        "learning_rate": 10,
-        "prop_step": 6,
-        "dropout_prob": 0.5,
-        "fit_encoders": False,
-        "max_nodes": 12000,
-        "optimizer": "adadelta",
-        "lr_step_size": 10,
-        "lr_gamma": 0.5,
-        "categorical_kind": False,
-        "batch_normalization": True,
-        "loss_function": "ce",
-        "train_size": 101,
-        "valid_size": 10,
-        "valid_step": 50,
-        "data_project": "lucene"
-    }
+class RemoteTestingBase(TestingBase):
+    params = {}
 
     def __init__(self):
-        TestingBase.__init__(self)
-        self.args = TestingNNCA.params
+        return
 
-    def run(self, logger):
-        assert self.args["data_project"] in ["lucene", "cassandra"], "data error"
-        if self.args["data_project"] == "cassandra":
-            logger.warning("cassandra")
-            data = Data(raw_data_dir=r"C:/workspace/CSharpCodeChecker/NNCA/raw_data/Cassandra/")
-        elif self.args["data_project"] == "lucene":
-            logger.warning(self.args["data_project"])
-            data = Data(raw_data_dir=r"C:/workspace/CSharpCodeChecker/NNCA/raw_data/Lucene/")
-        else:
-            raise KeyError("Unknown project")
-        
-        model = Model(params=self.args, data=data, logger=logger)
-        valid_it = model.train_model(self.args["train_size"], self.args["valid_step"], self.args["valid_size"], debug=True, log=True)
+    def params_to_dict(self):
+        raise NotImplementedError()
 
+    @staticmethod
+    def from_dict(path_to_file):
+        raise NotImplementedError()
 
 
 class TestingExample(TestingBase):
@@ -62,9 +33,81 @@ class TestingExample(TestingBase):
     }
 
     def __init__(self):
+        self.args = MessageToUsers.params
         return
 
     def run(self, logger):
         for i in range(self.params["n"]):
             sleep(4)
             logger.warning(i)
+
+
+class MessageToUsers(TestingBase):
+    @staticmethod
+    def send_email(name, email, text):
+        sleep(0.1)
+        return
+
+    def add_recipient(self, input):
+        name, email = re.split(pattern=", ", string=input)
+        self.recipient[name] = email
+        return "Added {0} {1} ".format(name, email)
+
+    params = {
+        "n": 3,
+        "text": "Hello",
+        "add_recipient": add_recipient
+    }
+
+    def __init__(self):
+        self.args = MessageToUsers.params
+        self.recipient = {}
+        return
+
+    def run(self, logger):
+        for name in self.recipient:
+            MessageToUsers.send_email(name, self.recipient[name], self.args["text"])
+            logger.warning("Send {0} to {1} ({2})".format(self.params["text"], self.recipient[name], name))
+
+class MessageToUsersRemote(RemoteTestingBase):
+    @staticmethod
+    def send_email(name, email, text):
+        sleep(0.1)
+        return
+
+    def add_recipient(self, input):
+        name, email = re.split(pattern=", ", string=input)
+        self.recipient[name] = email
+        return "Added {0} {1} ".format(name, email)
+
+    params = {
+        "n": 3,
+        "text": "Hello",
+        "add_recipient": add_recipient
+    }
+
+    def __init__(self):
+        self.args = MessageToUsers.params
+        self.recipient = {}
+        return
+
+    def run(self, logger):
+        for name in self.recipient:
+            MessageToUsers.send_email(name, self.recipient[name], self.args["text"])
+            logger.warning("Send {0} to {1} ({2})".format(self.params["text"], self.recipient[name], name))
+
+    def params_to_dict(self, path):
+        print(self.recipient)
+        saved_dict = {"args": self.args, "recipient": self.recipient}
+        del saved_dict["args"]["add_recipient"]
+        with open(path, 'w') as f:
+            json.dump(saved_dict, f)
+        
+        self.args["add_recipient"] = MessageToUsersRemote.add_recipient
+
+    def from_dict(self, path):
+        with open(path, 'r') as f:
+            saved_dict = json.load(f)
+        self.args = saved_dict["args"]
+        self.recipient = saved_dict["recipient"]
+        self.args["add_recipient"] = MessageToUsersRemote.add_recipient
