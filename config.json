@@ -1,0 +1,17 @@
+{
+    "remote_device": {
+        "user": "user_on_remote_device",
+        "device_name": "remote_device_name",
+        "work_dir": "C:\\workspace\\testing_bot",
+        "interpreter_path": "C:\\Users\\gleb\\Anaconda3\\python.exe"
+    },
+    "request_kwargs": {
+        "proxy_url": "socks5://phobos.public.opennetwork.cc:1090/",
+        "urllib3_proxy_kwargs": {
+            "username": "173674040",
+            "password": "PU4AQ9iN"
+        }
+    },
+    "token": "YOUR_BOT_TOKEN",
+    "chat_id": 11111111
+}

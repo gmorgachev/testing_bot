@@ -7,6 +7,10 @@ git clone https://github.com/gmorgachev/testing_bot.git
 pip install python-telegram-bot --upgrade
 ```
 
+## Configuration
+
+
+
 ## Server workflow
 - Implement your test as class inherited from **TestingBase** in **candidates.py**
 - Run **server.py**
@@ -18,6 +22,7 @@ pip install python-telegram-bot --upgrade
 ## Example
 
 ### Sending message for list of people
+
 ```python
 class MessageToUsers(TestingBase):
     @staticmethod

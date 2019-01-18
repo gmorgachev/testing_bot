@@ -24,9 +24,10 @@ class TestingBot:
 
     def __init__(self, cfg):
         try:
-            self.default_params = cfg["params"]
             self.my_chat_id = cfg["chat_id"]
             self.request_kwargs = cfg["request_kwargs"]
+            self.remote_device = cfg["remote_device"]
+
             self.updater = Updater(token=cfg["token"], request_kwargs=self.request_kwargs)
             self.bot = self.updater.bot
             self.dispatcher = self.updater.dispatcher
@@ -46,13 +47,6 @@ class TestingBot:
             handler = TelegramBotLogHandler(self.updater.bot, self.my_chat_id, 10)
             handler.setFormatter(TestingBot.log_formatter)
             self.logger.addHandler(handler)
-
-            self.remote_device = {
-                "user": "gleb",
-                "device_name": "localhost",
-                "work_dir": "C:\\workspace\\testing_bot",
-                "interpreter_path": "C:\\Users\\gleb\\Anaconda3\\python.exe"
-            }
 
             for name, obj in inspect.getmembers(sys.modules[lib.candidates.__name__]):
                 if inspect.isclass(obj) and issubclass(obj, lib.candidates.TestingBase):
@@ -117,7 +111,6 @@ class TestingBot:
         update.message.reply_text(text="Started")
 
     def remote_run(self, bot, update, user_data):
-        print(user_data["testing_functions"][user_data["testing_f"]].recipient)
         TestingBotRunner.send_remote_task(user_data["testing_functions"][user_data["testing_f"]],
             "test", self.bot.token, self.request_kwargs, update.message.chat_id, self.remote_device)
         update.message.reply_text(text="Started")

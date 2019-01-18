@@ -39,10 +39,11 @@ class TestingBotRunner:
             "request_kwargs": request_kwargs,
             "chat_id": chat_id
         }
+
         with open("./files/remote_cfg", "w") as f:
             json.dump(cfg, f)
-        print(testing)
         testing.params_to_dict("./files/remote_params")
+ 
         os.system("scp .\\files\\remote_cfg .\\files\\remote_params {0}@{1}:{2}".format(
             remote_device["user"], remote_device["device_name"], remote_device["work_dir"]
         ))
