@@ -115,8 +115,39 @@ class MessageToUsersRemote(RemoteTestingBase):
         self.args["add_recipient"] = MessageToUsersRemote.add_recipient
 ```
 
-### Running
+## Running
 
 ```bash
 python server.py
 ```
+
+## Bot command
+
+* /start        - run your bot
+* /choose       - choose project for testing
+* /params       - open menu to select new parameter
+* /run          - execute test for selected project
+* /remote_run   - execute test for selected project on remote device
+* /stop         - interrupt current testing
+
+### Example of workflow
+
+1. Run your bot
+    ```bash
+    /start
+    ```
+1. Choose project for testing
+    ```bash
+    /choose
+    ```
+    And select *MessageToUsers* in appeared menu
+1. Enter params
+    ```bash
+    /params
+    ```
+    And select *add_recipient* in appeared menu. Next, enter *ivan, ivanov@gmail.com*.
+    Choose text analogically.
+1. Run your test
+    ```bash
+    /run
+    ```
