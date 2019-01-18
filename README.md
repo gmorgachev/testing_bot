@@ -24,8 +24,6 @@ To execute tests on remote desktop enter the information about remote device in 
 
 * Implement your test as subclass of **TestingBase** in **candidates.py**
 
-Where,
-
 * **params**  - dictionary of test parameters with default value
 * **args**    - copy of **params** for class instances
 * **run**     - method which run after start test
@@ -136,18 +134,18 @@ python server.py
     ```bash
     /start
     ```
-1. Choose project for testing
+2. Choose project for testing
     ```bash
     /choose
     ```
     And select *MessageToUsers* in appeared menu
-1. Enter params
+3. Enter params
     ```bash
     /params
     ```
     And select *add_recipient* in appeared menu. Next, enter *"ivan, ivanov@gmail.com"*  
     Choose text analogically.
-1. Run your test
+4. Run your test
     ```bash
     /run
     ```
