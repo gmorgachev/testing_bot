@@ -1,7 +1,10 @@
 # Testing bot
-Telegram bot for run tests on remote PC  
+
+Telegram bot for run tests on remote PC
+Allow to use phone for creating tasks and checking results
 
 ## Install
+
 ```bash
 git clone https://github.com/gmorgachev/testing_bot.git
 pip install python-telegram-bot --upgrade
@@ -9,15 +12,26 @@ pip install python-telegram-bot --upgrade
 
 ## Configuration
 
+First, you need to set up your TestingBot.
+Fill **token** and **chat_id** in *config.json*.
 
+* **token** - token of your bot
+* **chat_id** - id of chat with your main telegram account
 
-## Server workflow
-- Implement your test as class inherited from **TestingBase** in **candidates.py**
-- Run **server.py**
+To execute tests on remote desktop enter the information about remote device in the same file.
 
-**params**  - dictionary of test parameters with default value 
-**run**     - method which run after start test  
-**logger**  - need to pass to your method
+## Test Creation
+
+* Implement your test as subclass of **TestingBase** in **candidates.py**
+
+Where,
+
+**params**  - dictionary of test parameters with default value
+**args**    - copy of **params** for class instances
+**run**     - method which run after start test
+**logger**  - need to pass to your **run** method. You will receive logs from this logger
+
+Your can use function as value in **params** to parse complicated params (as pair of *(name, email)* in examples)
 
 ## Example
 
@@ -54,6 +68,8 @@ class MessageToUsers(TestingBase):
 
 ### Execution on remote device
 
+To use execution on remote device your must have access to target device via ssh without entering the password (use e.g. *ssh-copy-id*).
+
 ```python
 class MessageToUsersRemote(RemoteTestingBase):
     @staticmethod
@@ -88,7 +104,7 @@ class MessageToUsersRemote(RemoteTestingBase):
         del saved_dict["args"]["add_recipient"]
         with open(path, 'w') as f:
             json.dump(saved_dict, f)
-        
+
         self.args["add_recipient"] = MessageToUsersRemote.add_recipient
 
     def from_dict(self, path):
@@ -97,4 +113,10 @@ class MessageToUsersRemote(RemoteTestingBase):
         self.args = saved_dict["args"]
         self.recipient = saved_dict["recipient"]
         self.args["add_recipient"] = MessageToUsersRemote.add_recipient
+```
+
+### Running
+
+```bash
+python server.py
 ```
