@@ -26,10 +26,10 @@ To execute tests on remote desktop enter the information about remote device in 
 
 Where,
 
-**params**  - dictionary of test parameters with default value
-**args**    - copy of **params** for class instances
-**run**     - method which run after start test
-**logger**  - need to pass to your **run** method. You will receive logs from this logger
+* **params**  - dictionary of test parameters with default value
+* **args**    - copy of **params** for class instances
+* **run**     - method which run after start test
+* **logger**  - need to pass to your **run** method. You will receive logs from this logger
 
 Your can use function as value in **params** to parse complicated params (as pair of *(name, email)* in examples)
 
