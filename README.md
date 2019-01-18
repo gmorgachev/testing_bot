@@ -145,7 +145,7 @@ python server.py
     ```bash
     /params
     ```
-    And select *add_recipient* in appeared menu. Next, enter *ivan, ivanov@gmail.com*.
+    And select *add_recipient* in appeared menu. Next, enter *"ivan, ivanov@gmail.com"*  
     Choose text analogically.
 1. Run your test
     ```bash
