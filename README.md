@@ -1,6 +1,6 @@
 # Testing bot
 
-Telegram bot for run tests on remote PC
+Telegram bot for run tests on remote computer  
 Allow to use phone for creating tasks and checking results
 
 ## Install
